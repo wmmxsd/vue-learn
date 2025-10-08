@@ -1,0 +1,164 @@
+/* * @Author: mikey.zhaopeng * @Date: 2025-10-08 22:34:09 * @Last Modified by: mikey.zhaopeng *
+@Last Modified time: 2025-10-08 22:38:08 */ /* * @Author: mikey.zhaopeng * @Date: 2025-10-08
+22:33:41 * @Last Modified by: mikey.zhaopeng * @Last Modified time: 2025-10-08 22:33:41 */ /* *
+@Author: mikey.zhaopeng * @Date: 2025-10-08 22:33:37 * @Last Modified by: mikey.zhaopeng * @Last
+Modified time: 2025-10-08 22:33:37 */
+<template>
+  <div class="device">
+    <h2>
+      设备信息1
+      <button style="display: inline-block" @click="editReactiveDevice()">修改设备</button>
+    </h2>
+    <p>
+      设备名: {{ device.name
+      }}<button style="display: inline-block" @click="editDeviceName">修改设备名</button>
+    </p>
+    <p>网络信息:</p>
+    <ol>
+      <li
+        v-for="(networkCard, index) in device.networkCard"
+        v-bind:key="networkCard.mac"
+        v-bind:id="`mac-${index}`"
+      >
+        {{ networkCard.ip }} {{ networkCard.mac }}
+        <button style="display: inline-block" @click="deleteNetworkCard(index)">删除</button>
+      </li>
+    </ol>
+    <!-- 新增输入框和按钮 -->
+    <div style="margin: 10px 0">
+      <input
+        v-model="newMac"
+        placeholder="请输入MAC地址"
+        style="padding: 5px; border-radius: 4px; border: 1px solid #ccc"
+      />
+      <button @click="addNetworkCard" style="display: inline-block; margin-left: 5px">
+        添加MAC
+      </button>
+    </div>
+  </div>
+
+  <div class="device" style="float: left">
+    <h2>
+      设备信息2
+      <button style="display: inline-block" @click="editRefDevice()">修改设备</button>
+    </h2>
+    <p>设备名: {{ device1.name }}</p>
+    <p>网络信息:</p>
+    <ol>
+      <li
+        v-for="(networkCard, index) in device1.networkCard"
+        v-bind:key="networkCard.mac"
+        v-bind:id="`mac-${index}`"
+      >
+        {{ networkCard.ip }} {{ networkCard.mac }}
+        <button style="display: inline-block" @click="deleteNetworkCardWithRef(index)">删除</button>
+      </li>
+    </ol>
+  </div>
+</template>
+
+<!-- 在script标签中添加setup属性后不用写export default代码块，直接定义变量、函数，且不用显式导出 -->
+<script setup lang="ts">
+// defineOptions()方法可以定义组件的选项，如name属性
+defineOptions({
+  name: 'UserProfile2',
+})
+
+// 可以同时引入ref和reactive函数
+import { ref, reactive } from 'vue'
+
+class NetworkCard {
+  ip: string
+  mac: string
+
+  constructor(ip: string, mac: string) {
+    this.ip = ip
+    this.mac = mac
+  }
+}
+
+class Device {
+  name: string
+  networkCard: Array<NetworkCard>
+
+  constructor(name: string, networkCard: Array<NetworkCard>) {
+    this.name = name
+    this.networkCard = networkCard
+  }
+}
+
+const networkCardArr = Array.of(
+  new NetworkCard('192.168.1.1', '00:0a:95:9d:68:16'),
+  new NetworkCard('192.168.1.1', '00:0a:95:9d:68:16'),
+)
+const networkCardArr1 = Array.of(
+  new NetworkCard('192.168.1.1', '00:0a:95:9d:68:16'),
+  new NetworkCard('192.168.1.1', '00:0a:95:9d:68:16'),
+)
+let device = reactive(new Device('d1', networkCardArr))
+// ref 也可以用来创建响应式对象类型,但需要通过 .value 访问对象的属性
+const device1 = ref(new Device('d2', networkCardArr1))
+
+// 新增用于绑定输入框的响应式数据
+const newMac = ref('')
+
+function editReactiveDevice() {
+  // 即使新建一个Device对象实例，模板还是引用的旧的reactive对象实例
+  // device = new Device('修改过的设备名', networkCardArr)
+
+  // 即使新建一个reactive对象实例，模板还是引用的旧的reactive对象实例
+  // device = reactive(new Device('修改过的设备名', networkCardArr))
+
+  // Object.assign(target, ...sources) 会把一个或多个源对象拷贝到目标对象 target，并返回 target。这是一个浅拷贝
+  device = Object.assign(device, new Device('修改过的设备名', [new NetworkCard('112.168.1.1', '11:0a:95:9d:68:16')]))
+}
+
+function editRefDevice() {
+  // 响应式数据需要通过 .value 访问或修改 ref 的值
+  device1.value = new Device('修改过的设备名', networkCardArr1)
+}
+
+function editDeviceName() {
+  device.name = '修改过的设备名'
+}
+
+function addNetworkCard() {
+  if (newMac.value.trim() !== '') {
+    device.networkCard.push(new NetworkCard('', newMac.value))
+    newMac.value = ''
+  }
+}
+
+function deleteNetworkCard(index: number) {
+  device.networkCard.splice(index, 1)
+}
+
+function deleteNetworkCardWithRef(index: number) {
+  // 响应式数据需要通过 .value 访问或修改 ref 的值
+  device1.value.networkCard.splice(index, 1)
+}
+</script>
+
+<style scoped>
+.device {
+  background-color: #87ceeb;
+  width: 300px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+button {
+  display: block;
+  margin: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+  text-align: cente;
+}
+</style>
