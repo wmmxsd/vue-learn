@@ -12,5 +12,8 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "commentTranslate.targetLanguage": "en",
   "commentTranslate.source": "",
-  "commentTranslate.multiLineMerge": true
+  "commentTranslate.multiLineMerge": true,
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  }
 }

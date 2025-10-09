@@ -1,5 +1,26 @@
 <template>
-  <div class="person">
+  <div class="container">
+    <h2>计算器</h2>
+    <input type="number" v-model.number="num1" />
+    <span> + </span>
+    <input type="number" v-model.number="num2" />
+    <span> = </span>
+    <span style="background-color: green; color: white;">{{ sum }}</span>
+    <button id="changeResultBtn" @click="changeResult()">随机修改结果</button>
+
+    <!-- 历史记录 -->
+    <div>
+      <h2>历史记录</h2>
+      <div v-if="!history || history.length === 0">暂无历史记录</div>
+      <div v-else>
+        <div v-for="(item, index) in history.slice().reverse()" v-bind:key="index">
+          {{ item[0] }} + {{ item[1] }} = {{ item[2] }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
     <h2>个人信息</h2>
     <!-- Vue 的插值语法{{ 绑定数据 }} -->
     <p>Id: {{ user.id }}</p>
@@ -9,94 +30,112 @@
     <!-- @click 单击事件监听 -->
     <button @click="editName">修改姓名</button>
     <button @click="editAge">修改年龄</button>
-    </div>
+  </div>
 </template>
 
-<!-- 在script标签中添加setup属性后不用写export default代码块，直接定义变量、函数，且不用显式导出 -->
-<script setup lang="ts">
-// defineOptions()方法可以定义组件的选项，如name属性
-defineOptions({
-  name: 'UserProfile2',
+<script lang="ts" setup>
+import { watch, computed, ref, toRef } from 'vue'
+const num1 = ref()
+const num2 = ref()
+// const history = ref<Array<Array<number>>>([])
+const history = ref<number[][]>([])
+
+// computed 是 Vue 提供的一个 API，用来声明一种特殊的响应式属性，且只是只读的。
+// 这种属性的值是基于其它响应式数据（如 ref 或 reactive 创建的数据）计算得出的。
+// const sum = computed(() => (num1.value || 0) + (num2.value || 0));
+
+// 这么定义的computed属性是可读可写的
+const sum = computed({
+  // set和get函数必须同时存在
+  get() {
+    return (num1.value || 0) + (num2.value || 0)
+  },
+  set(newValue) {
+    num1.value = newValue / 2
+    num2.value = newValue - num1.value
+  }
 })
 
-// 引入reactive函数
-import { reactive, toRef, toRefs } from 'vue'
+function changeResult() {
+  // 如果computed属性内部没有get和set函数那么修改computed属性控制台会提示：Write operation failed: computed value is readonly
+  // sum.value = Math.floor(Math.random() * 100);
 
+  // 如果computed属性内部有get和set函数那么是可以修改computed属性的
+  sum.value = Math.floor(Math.random() * 100)
+}
+
+// 场景一：监视响应式基本数据类型
+let count: number = 0
+const watchAttr = watch(sum, (newValue) => {
+  if (count == 6) {
+    // 停止监听
+    alert('体验次数已到达上限')
+    watchAttr.stop()
+    const changeResultBtn = document.getElementById('changeResultBtn') as HTMLButtonElement
+    changeResultBtn.disabled = true
+    changeResultBtn.style.backgroundColor = '#ccc'
+    changeResultBtn.style.cursor = 'not-allowed'
+  }
+
+  const arr = Array.of(num1.value, num2.value, newValue)
+
+  if (num1.value == null || num2.value == null) {
+    return
+  }
+
+  history.value.push(arr)
+
+  if (history.value.length > 5) {
+    history.value.shift()
+  }
+
+  count++
+})
+
+// 场景二：监视响应式对象类型（deep：深度监听（意思是对象的属性变化也会监听） immediate：立即执行(意思是初始化时也会执行））
 class User {
   id: number
   name: string
   age: number
-  devices: Array<Device>
-
-  constructor(id:number, name: string, age: number, devices: Array<Device>) {
+  constructor(id: number, name: string, age: number) {
     this.id = id
     this.name = name
     this.age = age
-    this.devices = devices
   }
 }
 
-class NetworkCard {
-  ip: string
-  mac: string
-
-  constructor(ip: string, mac: string) {
-    this.ip = ip
-    this.mac = mac
-  }
-}
-
-class Device {
-  name: string
-  networkCard: Array<NetworkCard>
-
-  constructor(name: string, networkCard: Array<NetworkCard>) {
-    this.name = name
-    this.networkCard = networkCard
-  }
-}
-
-const networkCardArr = Array.of(
-  new NetworkCard('192.168.1.1', '00:0a:95:9d:68:16'),
-  new NetworkCard('192.168.1.1', '00:0a:95:9d:68:16'),
-)
-const device = new Device('d1', networkCardArr)
-const user = reactive(new User(111, '张三', 18, [device]))
-
-// 通过解构赋值创建的变量不是响应式的，所以修改变量不会触发页面更新
-// let {name, age} = user
-// console.log(name, age)
-// toRefs()方法创建的变量是响应式的，所以修改变量会触发页面更新
-const {name, age} = toRefs(user)
-console.log(name, age)
-
-// toRef()方法是将值/引用/getter标准化为ref引用。本处是为了将响应式对象user中的age属性转换为一个独立的ref引用(ageToRef)
-// 同时ageToRef与原始user对象的age属性保持响应式连接
-const ageToRef = toRef(user, 'age')
-console.log("ageToRef:", ageToRef.value)
-function editName() {
+const user = ref<User>(new User(111, '张三', 18))
+const nameToRef = toRef(user.value, 'name')
   let nameIndex = 1;
-  const lastChineseCharIndex = name.value.indexOf("三")
-  if (lastChineseCharIndex !== name.value.length - 1) {
-    nameIndex = parseInt(name.value.substring(lastChineseCharIndex + 1)) + 1
+  console.log(user)
+  console.log(user.value)
+  console.log(nameToRef)
+  console.log(nameToRef.value)
+function editName() {
+  const lastChineseCharIndex = user.value.name.indexOf("三")
+  if (lastChineseCharIndex !== user.value.name.length - 1) {
+    nameIndex = parseInt(user.value.name.substring(lastChineseCharIndex + 1)) + 1
   }
 
-  // 通过解构赋值创建的变量不是响应式的，所以修改变量不会触发页面更新
-  // name = `张三${nameIndex}`
-  // console.log(name, user.name)
-  name.value = `张三${nameIndex}`
+  nameToRef.value = `张三${nameIndex}`
 }
 
 function editAge() {
-  // user.age++
-  age.value++
+  user.value.age++
 }
+
+watch(user, (newValue, oldValue) => {
+  console.log('watch:', user.value, newValue, oldValue)
+  // deep：深度监听(意思是对象的属性变化也会监听)
+  // immediate：立即执行(意思是初始化时也会执行)
+}, { deep: true, immediate: true })
+
 </script>
 
-<style scoped>
-.person {
+<style lang="css" scoped>
+.container {
   background-color: #87ceeb;
-  width: 300px;
+  width: 100%;
   border: 1px solid #ccc;
   box-shadow: 0 0 10px;
   border-radius: 10px;
@@ -105,7 +144,7 @@ function editAge() {
 }
 
 button {
-  display: block;
+  display: inline-block;
   margin: 5px;
   padding: 5px 10px;
   border: none;
