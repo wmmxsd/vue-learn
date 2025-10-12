@@ -1,7 +1,6 @@
 <template>
   <div class="container">
-    <h2>设备信息-{{ uId }}-{{uName }}</h2>
-    <h2>设备信息-{{ appProps.uId }}-{{ appProps.uName }}</h2>
+    <h2>设备信息</h2>
     <!--
       获取DOM元素的引用，用于直接操作或访问该DOM节点。
       通过ref属性绑定到p标签，可以在Vue实例中通过const p1 = ref(null)访问到该DOM元素。
@@ -10,38 +9,35 @@
     <p ref="p1">ref dom from UserProfile.vue</p>
     <button @click="console.log(p1)">输出p1的dom</button>
     <button @click="console.log($refs.p1)">输出p1的dom-2</button>
-    <ul>
-      <li v-for="value in appProps.deviceList" v-bind:key="value.id">{{ value.name }}</li>
-    </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineProps } from 'vue'
-import { type Devices } from '@/components/device'
+import { ref } from 'vue'
+import { type DeviceInterface, type Devices } from '@/components/device'
 
 const p1 = ref(null)
 
-/* const devices = reactive<Devices>([
+const device: DeviceInterface = { id: '1', name: '设备1' }
+console.log(device)
+
+const devices: DeviceInterface[] = [
   { id: '1', name: '设备1' },
   { id: '2', name: '设备2' }
-])
-console.log(devices) */
+]
+console.log(devices)
 
-// 使用 defineProps 来声明组件接收的 prop
-const appProps = defineProps<{
-  uId: string,
-  uName: string,
-  deviceList: Devices
-}>()
+const devices1: Array<DeviceInterface> = [
+  { id: '1', name: '设备1' },
+  { id: '2', name: '设备2' }
+]
+console.log(devices1)
 
-if (appProps.deviceList.length > 0) {
-  appProps.deviceList[0].name = '修改后的设备1'
-}
-
-defineOptions({
-  name: 'UserProfile-customDefine'
-})
+const devices2: Devices = [
+  { id: '1', name: '设备1' },
+  { id: '2', name: '设备2' }
+]
+console.log(devices2)
 
 // 暴露给父组件
 defineExpose({ p1 })

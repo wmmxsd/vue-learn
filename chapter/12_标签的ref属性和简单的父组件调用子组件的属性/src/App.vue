@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import UserProfile3 from "./components/UserProfile.vue"
-  import { type Devices } from '@/components/device'
-  import { onMounted, reactive, ref } from 'vue'
+  import { onMounted, ref } from 'vue'
 
   const p1 = ref(null)
   const userProfile3FromApp = ref(null)
@@ -10,12 +9,6 @@
   onMounted(() => {
     console.log("onMounted", userProfile3FromApp.value.p1)
   })
-
-  const devices = reactive<Devices>([
-  { id: '1', name: '设备1' },
-  { id: '2', name: '设备2' }
-])
-console.log(devices)
 </script>
 
 <template>
@@ -30,11 +23,8 @@ console.log(devices)
     -->
     <p ref="p1">ref dom from App.vue</p>
     <button @click="console.log(p1)">输出p1的dom</button>
-     <ul>
-      <li v-for="value in devices" v-bind:key="value.id">{{ value.name }}</li>
-    </ul>
   </div>
-  <UserProfile3 ref="userProfile3FromApp" uId="123456" uName="测试ref" v-model:deviceList="devices"/>
+  <UserProfile3 ref="userProfile3FromApp"/>
 </template>
 
 <style>
