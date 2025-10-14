@@ -1,7 +1,6 @@
 <template>
   <div class="app">
     <UserProfile3 v-if="isShowPersonComponent" />
-    <br>
     <button v-if="isShowPersonComponent" @click="hidePersonComponent">关闭子组件</button>
     <button v-else @click="showPersonComponent">显示子组件</button>
   </div>
