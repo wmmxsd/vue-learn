@@ -26,7 +26,7 @@
       <button @click="goBack">后退</button>
       <button @click="goForward">前进</button>
     </div>
-    <div v-show="route.fullPath == '/router3/list'" class="div-card">
+    <div class="div-card">
       <!-- 插槽位置：如果作为父路由有子路由，展示子路由内容 -->
       <RouterView />
     </div>
@@ -38,6 +38,7 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 defineOptions({ name: 'Router-3' })
+
 
 const router = useRouter()
 const route = useRoute()
@@ -129,7 +130,6 @@ const routeInfo = computed(() => ({
 }
 
 .div-card {
-  width: 50%;
   height: 200px;
   margin: 10px 0;
   border: 1px solid rgba(255, 255, 255, 0.3);

@@ -3,7 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Router1 from '../views/Router1/Router1.vue'
 import Router2 from '../views/Router2/Router2.vue'
 import Router3 from '../views/Router3/Router3.vue'
-import Router3List from '../views/Router3/subRouter/Router3list.vue'
+import Router3List from '../views/Router3/subRouter/Router3List.vue'
+import Router3Info from '../views/Router3/subRouter/Router3Info.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -24,6 +25,12 @@ const router = createRouter({
         {
           path: 'list',
           component: Router3List,
+          children: [
+            {
+              path: 'info',
+              component: Router3Info,
+            },
+          ],
         },
       ],
     },
