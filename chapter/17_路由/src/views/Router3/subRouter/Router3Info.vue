@@ -4,11 +4,15 @@
     <li>mac: {{ device.mac }}</li>
     <li>cpu core nums: {{ device.cpuCoreNums }}</li>
     <li>memory content: {{ device.memoryContent }}</li>
+    <li v-if="route.params && route.params.ip">route.params.ip: {{ route.params.ip }}</li>
+    <li>ip: {{ props.ip }}</li>
+    <li>ip: {{ ip }}</li>
+    <li>flag: {{ flag }}</li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, ref } from "vue";
+import { computed, onBeforeMount, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 class Device {
@@ -33,17 +37,23 @@ ipAndDeviceMap.set('192.168.118.12', new Device('192.168.118.12', '00:1c:29:0c:0
 const route = useRoute();
 
 const device = computed(() => {
-  const ip = String(route.query.ip || '') // 保证字符串
-  return ipAndDeviceMap.get(ip) || null
+  const ip_temp = String(route.query.ip || '') // 保证字符串
+  return ipAndDeviceMap.get(ip_temp) || null
 })
 
-onBeforeMount(() => {
-    console.log('router3Info组件挂载之前', device.value)
-  })
+// 通过 props 接收路由参数，前提条件是路由配置中有 props: true
+const props = defineProps<{
+  ip: string,
+  flag?: number
+}>()
 
-  onMounted(() => {
-    console.log('router3Info组件挂载完成', device.value)
-  })
+onBeforeMount(() => {
+  console.log('router3Info组件挂载之前', device.value)
+})
+
+onMounted(() => {
+  console.log('router3Info组件挂载完成', device.value)
+})
 </script>
 
 <style lang="css" scoped>

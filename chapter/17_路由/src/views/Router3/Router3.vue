@@ -25,6 +25,7 @@
       <button @click="replaceToId">前往 id (replace)</button>
       <button @click="goBack">后退</button>
       <button @click="goForward">前进</button>
+      <button @click="goToRouter2">前往Router2</button>
     </div>
     <div class="div-card">
       <!-- 插槽位置：如果作为父路由有子路由，展示子路由内容 -->
@@ -62,6 +63,10 @@ function goBack() {
 
 function goForward() {
   router.forward()
+}
+
+function goToRouter2() {
+  router.push({ path: '/router2' }).catch(() => {})
 }
 
 // 可用于模板显示的便捷信息

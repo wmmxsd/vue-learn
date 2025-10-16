@@ -32,6 +32,27 @@ const router = createRouter({
             },
           ],
         },
+        {
+          name: 'router-3-info',
+          // 占位符，表示这是一个动态路由，不能用数组和对象
+          path: 'info/:ip',
+          component: Router3Info,
+          // 开启props传参，路由的params参数会被映射到组件的props中，子组件可以用defineProps接收参数
+          // props: true,
+
+          // 也可以用函数的形式，返回一个函数，参数为route对象，返回值可以为params、query等，一般为query，params一般直接用props: true
+          props(route) {
+            return route.query
+          },
+          // 也可以用对象的形式，表示传递固定的值，一般不常用
+          /* props: {
+            ip: '192.168.1.1',
+            flag: 2
+          } */
+        },{
+          path: '/',
+          redirect: '/router3'
+        }
       ],
     },
   ],
